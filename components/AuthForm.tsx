@@ -10,6 +10,8 @@ import Link from "next/link";
 import { FIELD_NAMES, FIELD_TYPES } from "@/constants"
 import ImageUpload from "./imageUpload";
 
+import { useRouter } from "next/navigation";
+
 interface Props<T extends FieldValues> {
   schema: ZodType<T>;
   defaultValues: T;
@@ -18,6 +20,8 @@ interface Props<T extends FieldValues> {
 }
 
 const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit }: Props<T>) => {
+
+  const router = useRouter();
   const form = useForm<T>({
     resolver: zodResolver(schema as any),
     defaultValues: defaultValues as DefaultValues<T>,
@@ -25,11 +29,13 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
 
   const handleSubmit: SubmitHandler<T> = async (data) => {
     const result = await onSubmit(data);
-    if (result.error) {
-      // Ideally show a toast or form error
-      // For now, perhaps we can set a root error or just log it if no UI for generic errors exists
-      // Or assuming the onSubmit handles the specific field errors mapping if needed
-      alert(result.error); // Fallback for visibility
+    if (result.success) {
+      alert(type === "SIGN_IN" ? "Sign in successful!" : "Sign up successful!");
+      //  redirecting the user
+      router.push("/");
+
+    } else{
+      alert(result.error || "An error occurred. Please try again.");
     }
   };
 
